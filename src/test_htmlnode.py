@@ -1,5 +1,5 @@
 import unittest
-from htmlnode import HTMLNode, LeafNode 
+from htmlnode import HTMLNode, LeafNode, ParentNode 
 
 class TestHTMLNode(unittest.TestCase):
     def test_default_initialization(self):
@@ -31,7 +31,12 @@ class TestLeafNode(unittest.TestCase):
     def test_error(self):
         node = LeafNode("h1", None, {"href": "www.google.com"})
         self.assertRaises(ValueError)
-
+class TestParentNode(unittest.TestCase):
+    def test_values(self):
+        node = ParentNode("h1", [LeafNode("p", "this is a test", {"href": "www.google.com"})], {"href": "www.google.com"})
+        self.assertEqual(node.tag, "h1")
+        self.assertEqual(node.props, {"href": "www.google.com"})
+    
 
 if __name__ == "__main__":
     unittest.main()
