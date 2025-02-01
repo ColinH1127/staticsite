@@ -39,3 +39,21 @@ def text_node_to_html_node(text_node):
         case _:
             raise Exception("must be a valid text type")
 
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    split_nodes = old_nodes.split(delimiter)
+    new_nodes = []
+    for node in split_nodes:
+        if node == node[0]:
+            new_nodes.append(TextNode(node, TextType.NORMAL))
+        elif delimiter == "**":
+            new_nodes.append(TextNode(node, TextType.BOLD))
+        elif delimiter == "*":
+            new_nodes.append(TextNode(node, TextType.ITALIC))
+        elif delimiter == "`":
+            new_nodes.append(TextNode(node, TextType.CODE))
+        elif node == node[-1]:
+            new_nodes.append(TextNode(node, TextType.NORMAL))
+        else: 
+            raise Exception("please use a proper delimiter")
+        return new_nodes
+        
