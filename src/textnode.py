@@ -66,18 +66,45 @@ def extract_markdown_links(text):
 def split_nodes_image(old_nodes):
     new_nodes = []
     for node in old_nodes:
-        parts = node.split("[", 1)
-        text = parts[0]
-        image = extract_markdown_images(node)
-        new_nodes.append(TextNode(text, TextType.NORMAL))
-        new_nodes.append(TextNode(image, TextType.IMAGE))
+        if node.text_type != TextType.NORMAL:
+            new_nodes.append(node)
+            continue
+        original_text = node.text
+        images = extract_markdown_images(original_text)
+        if len(images) == 0:
+            new_nodes.append(node)
+            continue
+        for image in images:
+            parts = original_text.split(f"![{image[0]}]({image[1]})", 1)
+            if len(parts) != 2:
+                raise ValueError("Invalid")
+            if parts[0] != "":
+                new_nodes.append(TextNode(parts[0], TextType.NORMAL))
+            new_nodes.append(TextNode(image[0], TextType.IMAGES, image[1]))
+            original_text = parts[1]
+            if original_text != "":
+                new_nodes.append(TextNode(original_text, TextType.NORMAL))
     return new_nodes
+
 def split_nodes_link(old_nodes):
     new_nodes = []
     for node in old_nodes:
-        parts = node.split("[", 1)
-        text = parts[0]
-        link = extract_markdown_links(node)
-        new_nodes.append(TextNode(text, TextType.NORMAL))
-        new_nodes.append(TextNode(link, TextType.IMAGE))
+        if node.text_type != TextType.NORMAL:
+            new_nodes.append(node)
+            continue
+        original_text = node.text
+        links = extract_markdown_links(original_text)
+        if len(link) == 0:
+            new_nodes.append(node)
+            continue
+        for link in links:
+            parts = original_text.split(f"![{link[0]}]({link[1]})", 1)
+            if len(parts) != 2:
+                raise ValueError("Invalid")
+            if parts[0] != "":
+                new_nodes.append(TextNode(parts[0], TextType.NORMAL))
+            new_nodes.append(TextNode(link[0], TextType.LINKS, link[1]))
+            original_text = parts[1]
+            if original_text != "":
+                new_nodes.append(TextNode(original_text, TextType.NORMAL))
     return new_nodes
