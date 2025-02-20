@@ -61,7 +61,7 @@ def extract_markdown_images(text):
     images = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     return images
 def extract_markdown_links(text):
-    links = re.findallr("(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)   
+    links = re.findall("(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)   
     return links
 def split_nodes_image(old_nodes):
     new_nodes = []
@@ -94,11 +94,11 @@ def split_nodes_link(old_nodes):
             continue
         original_text = node.text
         links = extract_markdown_links(original_text)
-        if len(link) == 0:
+        if len(links) == 0:
             new_nodes.append(node)
             continue
         for link in links:
-            parts = original_text.split(f"![{link[0]}]({link[1]})", 1)
+            parts = original_text.split(f"[{link[0]}]({link[1]})", 1)
             if len(parts) != 2:
                 raise ValueError("Invalid")
             if parts[0] != "":
@@ -108,3 +108,34 @@ def split_nodes_link(old_nodes):
             if original_text != "":
                 new_nodes.append(TextNode(original_text, TextType.NORMAL))
     return new_nodes
+
+def text_to_textnodes(text):
+    nodes = [TextNode(text, TextType.TEXT)]
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes
+
+def markdown_to_blocks(markdown):
+    lines = markdown.split("\n")
+    block = []
+    block_list = []
+    for line in lines:
+        
+        stripped_line = line.strip()
+        if stripped_line != "":
+            block.append(stripped_line)
+        if stripped_line == "":
+            if block == []:
+                continue
+            else:
+                new_block = "\n".join(block)
+                block_list.append(new_block)
+                block = []
+        if block != []:
+            block_list.append(block)
+            
+    return block_list
+        
